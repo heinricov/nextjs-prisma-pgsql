@@ -1,62 +1,58 @@
-import Form from "next/form";
-import prisma from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useFormState, useFormStatus } from 'react-dom';
+import { createPost } from '@/app/actions/post-actions';
 
 export default function NewPost() {
-  async function createPost(formData: FormData) {
-    "use server";
-
-    const title = formData.get("title") as string;
-    const content = formData.get("content") as string;
-
-    await prisma.post.create({
-      data: {
-        title,
-        content,
-        authorId: 1,
-      },
-    });
-
-    revalidatePath("/posts");
-    redirect("/posts");
-  }
+  const [state, formAction] = useFormState(createPost, { message: '', success: true });
+  const { pending } = useFormStatus();
 
   return (
     <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Create New Post</h1>
-      <Form action={createPost} className="space-y-6">
+      <h1 className="text-2xl font-bold mb-6">Buat Post Baru</h1>
+      {state?.message && (
+        <div className={`p-4 mb-4 rounded-lg ${state.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+          {state.message}
+        </div>
+      )}
+      <form action={formAction} className="space-y-6">
         <div>
           <label htmlFor="title" className="block text-lg mb-2">
-            Title
+            Judul
           </label>
           <input
             type="text"
             id="title"
             name="title"
-            placeholder="Enter your post title"
-            className="w-full px-4 py-2 border rounded-lg"
+            required
+            placeholder="Masukkan judul post"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            disabled={pending}
           />
         </div>
         <div>
           <label htmlFor="content" className="block text-lg mb-2">
-            Content
+            Konten
           </label>
           <textarea
             id="content"
             name="content"
-            placeholder="Write your post content here..."
+            required
+            placeholder="Tulis konten post di sini..."
             rows={6}
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            disabled={pending}
           />
         </div>
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600"
+          disabled={pending}
+          className={`w-full py-3 rounded-lg text-white font-medium ${pending ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
+          aria-disabled={pending}
         >
-          Create Post
+          {pending ? 'Mengirim...' : 'Buat Post'}
         </button>
-      </Form>
+      </form>
     </div>
   );
 }
