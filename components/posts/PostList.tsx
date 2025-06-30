@@ -1,5 +1,7 @@
 import prisma from "@/lib/prisma";
 
+export const revalidate = 0; // Revalidate on every request
+
 export default async function Posts() {
   const posts = await prisma.post.findMany({
     include: {
@@ -8,7 +10,7 @@ export default async function Posts() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center -mt-16">
+    <div className="min-h-screen bg-gray-400 flex flex-col items-center justify-center -mt-16">
       <h1 className="text-4xl font-bold mb-8 font-[family-name:var(--font-geist-sans)] text-[#333333]">
         Posts
       </h1>
